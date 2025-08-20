@@ -10,6 +10,32 @@ CHANNEL_ID = "79278605959"
 async def home():
     return {"message": "Server is working!"}
 
+@app.post("/wazzup/webhook")
+async def wazzup_webhook(payload: dict):
+    print("Webhook payload:", payload)
+    return {"status": "ok"}
+
+# @app.post("/wazzup/webhook")
+# async def wazzup_webhook(request: Request):
+#     data = await request.json()  # получаем JSON от Wazzup
+#     print("Пришло сообщение:", data)
+   
+#     phone = data["messages"][0]["from"]
+#     text = data["messages"][0]["text"]
+
+#     reply_to_client(phone, "Спасибо! Мы получили ваше сообщение.")
+
+#     return {"status": "ok"}
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
+@app.post("/amocrm/send")
+async def send_to_amocrm(data: dict):
+    # тут будет код, который отправляет данные в AmoCRM
+    return {"status": "sent"}
+
 def reply_to_client(phone: str, text: str):
     url = "https://api.wazzup24.com/v3/message"
     headers = {
@@ -24,15 +50,3 @@ def reply_to_client(phone: str, text: str):
     }
     response = requests.post(url, headers=headers, json=payload)    #отправляем POST-запрос в формате JSON
     print("Ответ отправлен:", response.status_code, response.text)
-
-@app.post("/wazzup/webhook")
-async def wazzup_webhook(request: Request):
-    data = await request.json()  # получаем JSON от Wazzup
-    print("Пришло сообщение:", data)
-   
-    phone = data["messages"][0]["from"]
-    text = data["messages"][0]["text"]
-
-    reply_to_client(phone, "Спасибо! Мы получили ваше сообщение.")
-
-    return {"status": "ok"}
