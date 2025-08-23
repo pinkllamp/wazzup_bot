@@ -2,14 +2,15 @@ from fastapi import FastAPI, Request
 import requests
 from models import Message
 from storage import storage
-from tokens_manager import get_access_token
-from message import get_bot_response
+from bot_logic import get_bot_response
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 app = FastAPI()
-
-WAZZUP_TOKEN = "138c161ae2094e279cab054f2d4c9972"
-CHANNEL_ID = "79278605959"
-AMO_BASE= "https://isasvetlana.amocrm.ru"
+WAZZUP_TOKEN = os.getenv("WAZZUP_TOKEN")
+WAZZUP_CHANEL_ID = os.getenv("WAZZUP_CHANNEL_ID")
 
 #1 Главная страница
 @app.get("/")
@@ -46,15 +47,14 @@ def get_messages():
 @app.post("/amocrm/callback")
 async def send_to_amocrm(request: Request):
     data = await request.json()
-    print("Webhook от amoCRM:", data)
-    return {"status": "received"}
+    return {"status": "received", "data": data}
 
 
 def send_message(phone: str, text: str):
     url = "https://api.wazzup24.com/v3/message"  # базовый URL API
     headers = {"Authorization": f"Bearer {WAZZUP_TOKEN}"}
     data = {
-        "channelId": "your_channel_id",  # ID канала из Wazzup
+        "channelId": WAZZUP_CHANEL_ID,
         "chatType": "whatsapp",
         "chatId": phone,                 # номер клиента
         "text": text

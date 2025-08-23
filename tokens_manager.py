@@ -2,10 +2,20 @@ import requests
 import json
 import time
 from pathlib import Path
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+AMO_CLIENT_ID=os.getenv("AMO_CLIENT_ID")
+AMO_CLIENT_SECRET=os.getenv("AMO_CLIENT_SECRET")
+AMO_REDIRECT_URI=os.getenv("AMO_REDIRECT_URI")
+AMO_BASE=os.getenv("AMO_BASE")
+
+AMO_ACCESS_TOKEN=os.getenv("AMO_ACCESS_TOKEN")
+AMO_REFRESH_TOKEN=os.getenv("AMO_REFRESH_TOKEN")
 
 # Путь к файлу, где будут храниться токены
 TOKENS_FILE = Path("tokens.json")
-AMO_BASE = "https://isasvetlana.amocrm.ru" 
 
 # Загружаем токены из файла
 def load_tokens() -> dict:

@@ -1,11 +1,8 @@
 import json
 import re
 import time
-import os
-from typing import Dict
 from amocrm_api import create_contact, create_lead, create_task_for_manager, get_contact_leads
-
-STATE_FILE = "state.json"
+from state_manager import load_state, save_state
 
 # Загрузка сценария из JSON
 with open("scenario.json", "r", encoding="utf-8") as f:
@@ -83,23 +80,10 @@ def get_bot_response(phone: str, text: str) -> str:
 
     return scenario["manager_faq"]     
 
-# Загрузка состояния из файла
-def load_state() -> Dict:
-    if os.path.exists(STATE_FILE):
-        with open(STATE_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
-    return {}
-
 # Проверка: прошло ли 24 часа после отправки сообщения клиенту
 def is_inactive(last_timestamp: float) -> bool:
     now = time.time()
     return (now - last_timestamp) > 86400
-
-# Сохранение состояния клиента в файл
-def save_state(state: Dict):
-    state["timestamp"] = time()
-    with open(STATE_FILE, "w", encoding="utf-8") as f:
-        json.dump(state, f, ensure_ascii=False, indent=4)
 
 # Функция для проверки ключевых слов FAQ и возврата ответа
 def check_faq(user_text: str) -> str:
