@@ -31,14 +31,14 @@ def health():
 async def wazzup_webhook(request: Request):
     data = await request.json()  # получаем JSON от Wazzup
     logging.info(f"Получен вебхук: {data}")  # Логируем весь JSON
-    # phone = data.get("phone")
-    # text = data.get("text")
+    phone = data.get("chatId")
+    text = data.get("text")
     
-    # message = Message(phone=phone, text=text)
-    # storage.append(message)
+    message = Message(phone=phone, text=text)
+    storage.append(message)
 
-    # answer_bot = get_bot_response(phone, text) 
-    # send_message(phone, answer_bot)  # Отправка ответа клиенту через Wazzup
+    answer_bot = get_bot_response(phone, text) 
+    send_message(phone, answer_bot)  # Отправка ответа клиенту через Wazzup
 
     return {"status": "ok"}
 
