@@ -30,15 +30,20 @@ def health():
 @app.post("/wazzup/webhook")
 async def wazzup_webhook(request: Request):
     data = await request.json()  # получаем JSON от Wazzup
-    logging.info(f"Получен вебхук: {data}")  # Логируем весь JSON
-    phone = data["messages"][0]["chatId"]  
-    text = data["messages"][0]["text"]
-    
-    message = Message(phone=phone, text=text)
-    storage.append(message)
+    messages = data.get("messages", [])
+    if not messages:
+        logging.warning("Нет сообщений в вебхуке")
+        return {"status": "ok"}
 
-    answer_bot = get_bot_response(phone, text) 
-    send_message(phone, answer_bot)  # Отправка ответа клиенту через Wazzup
+    for msg in messages:
+        phone = msg.get("chatId")
+        text = msg.get("text", "")  # на случай, если текст отсутствует
+    
+        message = Message(phone=phone, text=text)
+        storage.append(message)
+
+        answer_bot = get_bot_response(phone, text) 
+        send_message(phone, answer_bot)  # Отправка ответа клиенту через Wazzup
 
     return {"status": "ok"}
 
