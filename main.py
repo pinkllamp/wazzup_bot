@@ -6,6 +6,10 @@ from bot_logic import get_bot_response
 from dotenv import load_dotenv
 import os
 
+#для тестов
+import logging  
+logging.basicConfig(level=logging.INFO)
+
 load_dotenv()
 
 app = FastAPI()
@@ -26,15 +30,15 @@ def health():
 @app.post("/wazzup/webhook")
 async def wazzup_webhook(request: Request):
     data = await request.json()  # получаем JSON от Wazzup
-   
-    phone = data.get("phone")
-    text = data.get("text")
+    logging.info(f"Получен вебхук: {data}")  # Логируем весь JSON
+    # phone = data.get("phone")
+    # text = data.get("text")
     
-    message = Message(phone=phone, text=text)
-    storage.append(message)
+    # message = Message(phone=phone, text=text)
+    # storage.append(message)
 
-    answer_bot = get_bot_response(phone, text) 
-    send_message(phone, answer_bot)  # Отправка ответа клиенту через Wazzup
+    # answer_bot = get_bot_response(phone, text) 
+    # send_message(phone, answer_bot)  # Отправка ответа клиенту через Wazzup
 
     return {"status": "ok"}
 
