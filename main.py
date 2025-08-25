@@ -12,7 +12,6 @@ load_dotenv()
 
 app = FastAPI()
 WAZZUP_TOKEN = os.getenv("WAZZUP_TOKEN")
-WAZZUP_CHANEL_ID = os.getenv("WAZZUP_CHANNEL_ID")
 
 #1 Главная страница
 @app.get("/")
@@ -39,12 +38,13 @@ async def wazzup_webhook(request: Request):
         for msg in messages:
             phone = msg.get("chatId")
             text = msg.get("text", "")  
+            channel_id = msg.get("channelId")
 
             answer_bot = get_bot_response(phone, text)
             logging.info("Ответ бота: %s", answer_bot)
 
             try:
-                result = send_message(phone, answer_bot)
+                result = send_message(phone, answer_bot, channel_id)
                 logging.info("Wazzup ответил: %s", result)
             except Exception as e:
                 logging.error("Ошибка при отправке сообщения через Wazzup: %s", e)
@@ -61,20 +61,16 @@ async def send_to_amocrm(request: Request):
     data = await request.json()
     return {"status": "received", "data": data}
 
-def send_message(phone: str, text: str):
-    if not WAZZUP_TOKEN or not WAZZUP_CHANEL_ID:
-        logging.error("Нет WAZZUP_TOKEN или WAZZUP_CHANEL_ID")
-        return {"error": "missing config"}
-    
-    url = "https://api.wazzup24.com/v3/message"  # базовый URL API
+def send_message(phone: str, text: str, channel_id: str):
+    url = "https://api.wazzup24.com/v3/message" 
     headers = {
         "Authorization": f"Bearer {WAZZUP_TOKEN}",
         "Content-Type": "application/json"
     }
     data = {
-        "channelId": WAZZUP_CHANEL_ID,
+        "channelId": channel_id,
         "chatType": "whatsapp",
-        "chatId": phone,                 # номер клиента
+        "chatId": phone,         
         "text": text
     }
     
