@@ -22,6 +22,6 @@ def load_state():
 
 # Сохранение состояния клиента в файл
 def save_state(state: Dict):
-    state["timestamp"] = time()
+    state["timestamp"] = time.time() 
     with open("state.json", "w", encoding="utf-8") as f:
         json.dump(state, f, ensure_ascii=False, indent=4)
