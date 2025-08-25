@@ -71,7 +71,7 @@ def send_message(phone: str, text: str):
         "Authorization": f"Bearer {WAZZUP_TOKEN}",
         "Content-Type": "application/json"
     }
-    body = {
+    data = {
         "channelId": WAZZUP_CHANEL_ID,
         "chatType": "whatsapp",
         "chatId": phone,                 # номер клиента
@@ -79,10 +79,10 @@ def send_message(phone: str, text: str):
     }
     
     logging.info("Хедеры запроса: %s", headers)
-    logging.info("Отправка сообщения в Wazzup: %s", body)
+    logging.info("Отправка сообщения в Wazzup: %s", data)
 
     try:
-        response = requests.post(url, headers=headers, body=body)
+        response = requests.post(url, headers=headers, json=data)
         logging.info("Ответ Wazzup: %s %s", response.status_code, response.text)
         response.raise_for_status()
         return response.json()
