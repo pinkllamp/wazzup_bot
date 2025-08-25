@@ -119,22 +119,22 @@ def check_faq(user_text: str) -> str:
 
 def check_lazer(user_text: str) -> str:
     if re.search(r"\bSkinStar Nd\b", user_text):
-        return scenario["lazer"]["SkinStar Nd"]
+        return scenario["lazers"]["SkinStar Nd"]
     
     if re.search(r"\bNeoLaser Nd\b", user_text):
-        return scenario["lazer"]["NeoLaser Nd"]
+        return scenario["lazers"]["NeoLaser Nd"]
     
     if re.search(r"\bNeoLaser Titanium\b", user_text):
-        return scenario["lazer"]["NeoLaser Titanium"]
+        return scenario["lazers"]["NeoLaser Titanium"]
     
     if re.search(r"\bSkinStar Diode\b", user_text):
-        return scenario["lazer"]["SkinStar Diode"]
+        return scenario["lazers"]["SkinStar Diode"]
     
     if re.search(r"\bNeoLaser Diode\b", user_text):
-        return scenario["lazer"]["NeoLaser Diode"]
+        return scenario["lazers"]["NeoLaser Diode"]
     
     if re.search(r"\bNeoCryo\b", user_text):
-        return scenario["lazer"]["NeoCryo"]
+        return scenario["lazers"]["NeoCryo"]
     
     #если нет - вызываем вспомогательное сообщение
     return scenario["lazer_helper"]
