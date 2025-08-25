@@ -77,7 +77,7 @@ def send_message(phone: str, text: str):
         return {"error": "missing config"}
     
     url = "https://api.wazzup24.com/v3/message"  # базовый URL API
-    headers = {"Authorization": f"Bearer {WAZZUP_TOKEN}"}
+    headers = {"Authorization": f"ApiKey {WAZZUP_TOKEN}"}
     data = {
         "channelId": WAZZUP_CHANEL_ID,
         "chatType": "whatsapp",
