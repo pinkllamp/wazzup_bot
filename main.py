@@ -29,23 +29,36 @@ def health():
 #3 Вебхук для Wazzup
 @app.post("/wazzup/webhook")
 async def wazzup_webhook(request: Request):
-    data = await request.json()  # получаем JSON от Wazzup
-    messages = data.get("messages", [])
-    if not messages:
-        logging.warning("Нет сообщений в вебхуке")
+    try:
+        data = await request.json()
+        logging.info("Webhook payload: %s", data)
+
+        messages = data.get("messages", [])
+        if not messages:
+            logging.warning("Нет сообщений в вебхуке")
+            return {"status": "ok"}
+
+        for msg in messages:
+            phone = msg.get("chatId")
+            text = msg.get("text", "")  
+
+            message = Message(phone=phone, text=text)
+            storage.append(message)
+
+            answer_bot = get_bot_response(phone, text)
+            logging.info("Ответ бота: %s", answer_bot)
+
+            try:
+                result = send_message(phone, answer_bot)
+                logging.info("Wazzup ответил: %s", result)
+            except Exception as e:
+                logging.error("Ошибка при отправке сообщения через Wazzup: %s", e)
+
         return {"status": "ok"}
 
-    for msg in messages:
-        phone = msg.get("chatId")
-        text = msg.get("text", "")  # на случай, если текст отсутствует
-    
-        message = Message(phone=phone, text=text)
-        storage.append(message)
-
-        answer_bot = get_bot_response(phone, text) 
-        send_message(phone, answer_bot)  # Отправка ответа клиенту через Wazzup
-
-    return {"status": "ok"}
+    except Exception as e:
+        logging.exception("Ошибка в обработчике вебхука")
+        return {"status": "error", "details": str(e)}
 
 #4 Получение всех сообщений
 @app.get("/messages")
@@ -57,7 +70,6 @@ def get_messages():
 async def send_to_amocrm(request: Request):
     data = await request.json()
     return {"status": "received", "data": data}
-
 
 def send_message(phone: str, text: str):
     url = "https://api.wazzup24.com/v3/message"  # базовый URL API
