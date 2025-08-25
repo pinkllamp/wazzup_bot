@@ -3,12 +3,23 @@ import os
 import time
 from typing import Dict
 
-# Загрузка состояния из файла
-def load_state() -> Dict:
-    if os.path.exists("state.json"):
-        with open("state.json", "r", encoding="utf-8") as f:
-            return json.load(f)
-    return {}
+STATE_FILE = "state.json"
+
+def load_state():
+    if not os.path.exists(STATE_FILE):
+        return {}  # файла нет → возвращаем пустой dict
+
+    try:
+        with open(STATE_FILE, "r", encoding="utf-8") as f:
+            content = f.read().strip()
+            if not content:   # файл пустой
+                return {}
+            return json.loads(content)
+    except Exception as e:
+        # если файл повреждён → тоже возвращаем пустой dict
+        print(f"Ошибка при чтении {STATE_FILE}: {e}")
+        return {}
+
 # Сохранение состояния клиента в файл
 def save_state(state: Dict):
     state["timestamp"] = time()
