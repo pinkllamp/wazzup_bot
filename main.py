@@ -72,6 +72,10 @@ async def send_to_amocrm(request: Request):
     return {"status": "received", "data": data}
 
 def send_message(phone: str, text: str):
+    if not WAZZUP_TOKEN or not WAZZUP_CHANEL_ID:
+        logging.error("Нет WAZZUP_TOKEN или WAZZUP_CHANEL_ID")
+        return {"error": "missing config"}
+    
     url = "https://api.wazzup24.com/v3/message"  # базовый URL API
     headers = {"Authorization": f"Bearer {WAZZUP_TOKEN}"}
     data = {
@@ -81,5 +85,6 @@ def send_message(phone: str, text: str):
         "text": text
     }
     response = requests.post(url, headers=headers, json=data)
+    logging.info("Ответ Wazzup: %s %s", response.status_code, response.text)
     response.raise_for_status()
     return response.json()
