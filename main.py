@@ -29,7 +29,10 @@ async def wazzup_webhook(request: Request):
     try:
         data = await request.json()
         logging.info("Webhook payload: %s", data)
-
+        if msg.get("isEcho", False):
+            logging.info("Это эхо-сообщение, пропускаем обработку.")
+            return {"status": "ok"}
+        
         messages = data.get("messages", [])
         if not messages:
             logging.warning("Нет сообщений в вебхуке")
