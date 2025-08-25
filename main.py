@@ -1,7 +1,5 @@
 from fastapi import FastAPI, Request
 import requests
-from models import Message
-from storage import storage
 from bot_logic import get_bot_response
 from dotenv import load_dotenv
 import os
@@ -42,9 +40,6 @@ async def wazzup_webhook(request: Request):
             phone = msg.get("chatId")
             text = msg.get("text", "")  
 
-            message = Message(phone=phone, text=text)
-            storage.append(message)
-
             answer_bot = get_bot_response(phone, text)
             logging.info("Ответ бота: %s", answer_bot)
 
@@ -60,12 +55,7 @@ async def wazzup_webhook(request: Request):
         logging.exception("Ошибка в обработчике вебхука")
         return {"status": "error", "details": str(e)}
 
-#4 Получение всех сообщений
-@app.get("/messages")
-def get_messages():
-    return {"messages": [msg.dict() for msg in storage]}
-
-#5 Вебхук для amoCRM 
+#4 Вебхук для amoCRM 
 @app.post("/amocrm/callback")
 async def send_to_amocrm(request: Request):
     data = await request.json()
@@ -84,7 +74,14 @@ def send_message(phone: str, text: str):
         "chatId": phone,                 # номер клиента
         "text": text
     }
-    response = requests.post(url, headers=headers, json=data)
-    logging.info("Ответ Wazzup: %s %s", response.status_code, response.text)
-    response.raise_for_status()
-    return response.json()
+
+    logging.info("Отправка сообщения в Wazzup: %s", data)
+
+    try:
+        response = requests.post(url, headers=headers, json=data)
+        logging.info("Ответ Wazzup: %s %s", response.status_code, response.text)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        logging.error("Ошибка при отправке сообщения через Wazzup: %s", e)
+        return {"error": str(e)}
