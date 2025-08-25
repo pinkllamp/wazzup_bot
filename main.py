@@ -29,9 +29,6 @@ async def wazzup_webhook(request: Request):
     try:
         data = await request.json()
         logging.info("Webhook payload: %s", data)
-        if msg.get("isEcho", False):
-            logging.info("Это эхо-сообщение, пропускаем обработку.")
-            return {"status": "ok"}
         
         messages = data.get("messages", [])
         if not messages:
@@ -39,6 +36,10 @@ async def wazzup_webhook(request: Request):
             return {"status": "ok"}
 
         for msg in messages:
+            if msg.get("isEcho", False):
+                logging.info("Это эхо-сообщение, пропускаем обработку.")
+                return {"status": "ok"}
+        
             phone = msg.get("chatId")
             text = msg.get("text", "")  
             channel_id = msg.get("channelId")
