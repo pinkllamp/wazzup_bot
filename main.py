@@ -67,18 +67,22 @@ def send_message(phone: str, text: str):
         return {"error": "missing config"}
     
     url = "https://api.wazzup24.com/v3/message"  # базовый URL API
-    headers = {"Authorization": f"ApiKey {WAZZUP_TOKEN}"}
-    data = {
+    headers = {
+        "Authorization": f"Bearer {WAZZUP_TOKEN}",
+        "Content-Type": "application/json"
+    }
+    body = {
         "channelId": WAZZUP_CHANEL_ID,
         "chatType": "whatsapp",
         "chatId": phone,                 # номер клиента
         "text": text
     }
-
-    logging.info("Отправка сообщения в Wazzup: %s", data)
+    
+    logging.info("Хедеры запроса: %s", headers)
+    logging.info("Отправка сообщения в Wazzup: %s", body)
 
     try:
-        response = requests.post(url, headers=headers, json=data)
+        response = requests.post(url, headers=headers, body=body)
         logging.info("Ответ Wazzup: %s %s", response.status_code, response.text)
         response.raise_for_status()
         return response.json()
