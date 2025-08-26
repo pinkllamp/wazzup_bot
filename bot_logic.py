@@ -46,14 +46,14 @@ def get_bot_response(phone: str, text: str) -> str:
         response = check_lazer(text)
         if response != scenario["lazer_helper"]:
             state[phone]["step"] = 4 # Переход на этап 4, если получил инфу по аппарату
-            state[phone]["lead_id"] = create_lead(state[phone]["name"], text)  # Создаем сделку в amoCRM
+            state[phone]["lead_id"] = create_lead(state[phone]["name"])  # Создаем сделку в amoCRM
             save_state(state)
         return response
     
     # Этап 3.2: клиент нуждается в помощи с подбором
     elif current_step == 3.2:
         state[phone]["step"] = 4 # Переход на этап 4
-        state[phone]["lead_id"] = create_lead(state[phone]["name"], text)  # Создаем сделку в amoCRM
+        state[phone]["lead_id"] = create_lead(state[phone]["name"])  # Создаем сделку в amoCRM
         save_state(state)
         entity_id = get_contact_leads(state[phone]["lead_id"])  # Получаем ID контакта
         create_task_for_manager(entity_id, "leads", f"Связаться с клиентом {state[phone]['name']} по телефону {phone}", deadline_hours=2)

@@ -1,10 +1,14 @@
 import requests
 import time
-from tokens_manager import get_access_token, AMO_BASE
+from dotenv import load_dotenv
+import os
+
+AMO_BASE = os.getenv("AMO_BASE")
+AMO_ACCESS_TOKEN = os.getenv("AMO_ACCESS_TOKEN")
 
 def create_contact(name: str, phone: str):
     url = f"{AMO_BASE}/api/v4/contacts"
-    headers = {"Authorization": f"Bearer {get_access_token()}"}
+    headers = {"Authorization": f"Bearer {AMO_ACCESS_TOKEN}"}
     data = [{
         "name": name,
         "custom_fields_values": [
@@ -18,27 +22,27 @@ def create_contact(name: str, phone: str):
     response.raise_for_status()
     return response.json()
 
-def create_lead(name: str, model : str):
+def create_lead(name: str):
     url = f"{AMO_BASE}/api/v4/leads"
-    headers = {"Authorization": f"Bearer {get_access_token()}"}
-    data = [{"name": name, "model": model}]
+    headers = {"Authorization": f"Bearer {AMO_ACCESS_TOKEN}"}
+    data = [{"name": name}]
     response = requests.post(url, headers=headers, json=data)
     response.raise_for_status()
     lead = response.json()["_embedded"]["leads"][0]
     return lead["id"]  # возвращаем ID сделки
 
-def create_task_for_manager(entity_id: int, entity_type: str, text: str, responsible_user_id: int = None, deadline_hours: int = 24):
+def create_task_for_manager(entity_id: int, entity_type: str, text: str, deadline_hours: int = 24):
     """
     Создаёт задачу менеджеру в amoCRM.
-    :param entity_id: ID сделки или контакта
-    :param entity_type: "leads", "contacts" или "companies"
-    :param text: текст задачи
-    :param deadline_hours: через сколько часов выполнить задачу
+    entity_id: ID сделки или контакта
+    entity_type: "leads", "contacts" или "companies"
+    text: текст задачи
+    deadline_hours: через сколько часов выполнить задачу
     """
     url = f"{AMO_BASE}/api/v4/tasks"
-    headers = {"Authorization": f"Bearer {get_access_token()}"}
+    headers = {"Authorization": f"Bearer {AMO_ACCESS_TOKEN}"}
     
-    complete_till = int(time.time()) + deadline_hours * 3600  # дедлайн через N часов
+    complete_till = int(time.time()) + deadline_hours * 3600  # дедлайн 
 
     data = [{
         "entity_id": entity_id,
@@ -47,16 +51,13 @@ def create_task_for_manager(entity_id: int, entity_type: str, text: str, respons
         "complete_till": complete_till
     }]
 
-    if responsible_user_id:
-        data[0]["responsible_user_id"] = responsible_user_id
-
     response = requests.post(url, headers=headers, json=data)
     response.raise_for_status()
     return response.json()
 
 def get_contact_leads(contact_id: int):
     url = f"{AMO_BASE}/api/v4/contacts/{contact_id}?with=leads"
-    headers = {"Authorization": f"Bearer {get_access_token()}"}
+    headers = {"Authorization": f"Bearer {AMO_ACCESS_TOKEN}"}
     response = requests.get(url, headers=headers)
     response.raise_for_status()
     return response.json()["_embedded"]["leads"]
