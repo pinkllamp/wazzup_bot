@@ -13,6 +13,12 @@ load_dotenv()
 app = FastAPI()
 WAZZUP_TOKEN = os.getenv("WAZZUP_TOKEN")
 
+# УДАЛИТЬ - очистка state.json при каждом рестарте сервера
+import json
+if os.path.exists("state.json"):
+    with open("state.json", "w", encoding="utf-8") as f:
+        json.dump({}, f)
+
 #1 Главная страница
 @app.get("/")
 async def home():
