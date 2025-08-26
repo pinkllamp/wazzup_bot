@@ -57,7 +57,16 @@ def create_task_for_manager(entity_id: int, entity_type: str, text: str, deadlin
 
 def get_contact_leads(contact_id: int):
     url = f"{AMO_BASE}/api/v4/contacts/{contact_id}?with=leads"
-    headers = {"Authorization": f"Bearer {AMO_ACCESS_TOKEN}"}
+    headers = {
+        "Authorization": f"Bearer {AMO_ACCESS_TOKEN}"
+    }
     response = requests.get(url, headers=headers)
+    
+    # Проверим на случай пустого ответа
+    if response.status_code == 204 or not response.text.strip():
+        return []
+    
     response.raise_for_status()
-    return response.json()["_embedded"]["leads"]
+    data = response.json()
+    
+    return data.get("_embedded", {}).get("leads", [])
