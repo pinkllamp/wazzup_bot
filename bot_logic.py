@@ -63,15 +63,12 @@ def get_bot_response(phone: str, text: str) -> str:
     elif current_step == 4:
         return check_faq(text)
     
-    # Если клиент не отвечает в течение 24 часов - напоминание
-    if is_inactive(state[phone]["last_timestamp"]) and current_step != 5:
-        return scenario["no_answer"]
-    
     # Этап 5: клиент просит больше не писать
     if text.lower() in ["стоп", "хватит", "не писать", "не звонить", "отписаться", "не пишите мне больше"]:
         state[phone]["step"] = 5
         save_state(state)
         return scenario["thanks"]
+    
     # Если клиент написал после этапа 5, возвращаем его на этап 4
     if current_step == 5:
         state[phone]["step"] = 4

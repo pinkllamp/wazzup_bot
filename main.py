@@ -1,17 +1,14 @@
 from fastapi import FastAPI, Request
-import requests
-from bot_logic import get_bot_response
-from dotenv import load_dotenv
 import os
-
-#для тестов
+import asyncio
 import logging  
-logging.basicConfig(level=logging.INFO)
-
-load_dotenv()
+from bot_logic import get_bot_response
+from send_messages import send_message, reminder_worker
 
 app = FastAPI()
-WAZZUP_TOKEN = os.getenv("WAZZUP_TOKEN")
+
+# Для тестов
+logging.basicConfig(level=logging.INFO)
 
 # УДАЛИТЬ - очистка state.json при каждом рестарте сервера
 import json
@@ -71,27 +68,9 @@ async def send_to_amocrm(request: Request):
     data = await request.json()
     return {"status": "received", "data": data}
 
-def send_message(phone: str, text: str, channel_id: str):
-    url = "https://api.wazzup24.com/v3/message" 
-    headers = {
-        "Authorization": f"Bearer {WAZZUP_TOKEN}",
-        "Content-Type": "application/json"
-    }
-    data = {
-        "channelId": channel_id,
-        "chatType": "whatsapp",
-        "chatId": phone,         
-        "text": text
-    }
-    
-    logging.info("Хедеры запроса: %s", headers)
-    logging.info("Отправка сообщения в Wazzup: %s", data)
+#5 Фоновая задача для напоминаний
+@app.on_event("startup")
+async def startup_event():
+    """При старте сервера запускаем фоновую проверку"""
+    asyncio.create_task(reminder_worker())
 
-    try:
-        response = requests.post(url, headers=headers, json=data)
-        logging.info("Ответ Wazzup: %s %s", response.status_code, response.text)
-        response.raise_for_status()
-        return response.json()
-    except requests.exceptions.RequestException as e:
-        logging.error("Ошибка при отправке сообщения через Wazzup: %s", e)
-        return {"error": str(e)}
